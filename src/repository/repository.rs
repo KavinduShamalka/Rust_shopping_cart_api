@@ -269,7 +269,7 @@ impl MongoRepo {
     }
 
     //Get all products
-    pub async fn product_list(&self, token: &str) -> Result<Vec<Product>, ErrorResponse> {
+    pub async fn product_list(&self, token: &str) -> Result<HttpResponse, ErrorResponse> {
 
         match self.validate_user(token).await.unwrap(){
 
@@ -290,19 +290,23 @@ impl MongoRepo {
 
                 let mut product_vec = Vec::new();
 
+                let mut total = 0.0;
+
                 while let Some(doc) = product_list.next().await {
 
                     match doc {
                         Ok(product) => {
+                            total = total + product.total.unwrap();
                             product_vec.push(product)
                         },
                         Err(err) => {
+                            
                             eprintln!("Error finding product: {:?}", err)
                         },
                     }
                 }
 
-                Ok(product_vec)
+                Ok(HttpResponse::Ok().json(json!({"status" : "success", "result" : product_vec, "total" : total })))
             },
             None => {
                 Err(ErrorResponse {

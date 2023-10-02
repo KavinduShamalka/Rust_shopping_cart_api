@@ -76,7 +76,7 @@ pub async fn all_products(req: HttpRequest, db: Data<MongoRepo>) -> HttpResponse
     let token = token(req);
 
     match db.product_list(token.as_str()).await {
-        Ok(result) => HttpResponse::Ok().json(json!({"status" : "success", "result" : result})),
+        Ok(result) => result,
         Err(error) =>  HttpResponse::ExpectationFailed().json(json!({"status" : "failed", "message" : error})),        
     }
 }
